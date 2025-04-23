@@ -1,0 +1,29 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import Normalize, LinearSegmentedColormap
+from matplotlib.cm import ScalarMappable
+
+df = pd.read_csv("summer.csv")
+df_recent = df[(df['Year'] >= 2000) & (df['Year'] <= 2016)]
+gold = df_recent[df_recent['Medal'] == 'Gold']
+
+sport_counts = gold['Sport'].value_counts().reset_index()
+sport_counts.columns = ['Sport', 'Gold_Medals']
+sport_counts = sport_counts.sort_values('Gold_Medals', ascending=True)
+
+colors = ['#d73027', '#4575b4', '#1a9850']
+cmap = LinearSegmentedColormap.from_list("custom_cmap", colors)
+norm = Normalize(vmin=sport_counts['Gold_Medals'].min(), vmax=sport_counts['Gold_Medals'].max())
+bar_colors = [cmap(norm(value)) for value in sport_counts['Gold_Medals']]
+
+# Plotting
+fig, ax = plt.subplots(figsize=(10, 8))
+bars = ax.barh(sport_counts['Sport'], sport_counts['Gold_Medals'], color=bar_colors, edgecolor='black')
+sm = ScalarMappable(norm=norm, cmap=cmap)
+cbar = plt.colorbar(sm, ax=ax)
+cbar.set_label('Gold Medals)', fontsize=12)
+ax.set_xlabel('Gold Medals')
+ax.set_title('Total Olympic Gold Medals by Sport', fontsize=14)
+plt.tight_layout()
+plt.show()
